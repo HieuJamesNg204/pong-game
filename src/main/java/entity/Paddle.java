@@ -13,18 +13,6 @@ public class Paddle extends Rectangle {
         this.id = id;
     }
 
-    public int getId() {
-        return id;
-    }
-
-    public int getyVelocity() {
-        return yVelocity;
-    }
-
-    public int getSpeed() {
-        return speed;
-    }
-
     public void keyPressed(KeyEvent e) {
         if (id == 1) {
             if (e.getKeyCode() == KeyEvent.VK_W) {

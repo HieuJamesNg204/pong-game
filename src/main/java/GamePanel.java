@@ -15,6 +15,8 @@ public class GamePanel extends JPanel implements Runnable, KeyListener {
     static final int BALL_DIAMETER = 20;
     static final int PADDLE_WIDTH = 25;
     static final int PADDLE_HEIGHT = 100;
+    static final int ENDING_SCORE = 10;
+
     Thread gameThread;
     Image image;
     Graphics graphics;
@@ -24,10 +26,13 @@ public class GamePanel extends JPanel implements Runnable, KeyListener {
     Ball ball;
     Score score;
 
+    boolean gameEnded = false;
+
     public GamePanel() {
         newPaddles();
         newBall();
         score = new Score(GAME_WIDTH, GAME_HEIGHT);
+
         this.setFocusable(true);
         this.addKeyListener(this);
         this.setPreferredSize(SCREEN_SIZE);
@@ -62,7 +67,12 @@ public class GamePanel extends JPanel implements Runnable, KeyListener {
         image = createImage(getWidth(), getHeight());
         graphics = image.getGraphics();
         draw(graphics);
-        g.drawImage(image, 0, 0, this);
+
+        if (gameEnded) {
+            gameEnd(g);
+        } else {
+            g.drawImage(image, 0, 0, this);
+        }
     }
 
     public void draw(Graphics g) {
@@ -135,16 +145,59 @@ public class GamePanel extends JPanel implements Runnable, KeyListener {
         }
     }
 
+    public void gameEnd(Graphics g) {
+        g.setFont(new Font("Comic Sans MS", Font.PLAIN, 60));
+        String message;
+        g.setColor(Color.GREEN);
+
+        if (score.getPlayer1() > score.getPlayer2()) {
+            message = "Player 1 wins!";
+        } else {
+            message = "Player 2 wins!";
+        }
+
+        FontMetrics messageMetrics = getFontMetrics(g.getFont());
+        g.drawString(message, (GAME_WIDTH - messageMetrics.stringWidth(message)) / 2, GAME_HEIGHT / 2);
+
+        g.setFont(new Font("Comic Sans MS", Font.PLAIN, 30));
+        g.setColor(Color.WHITE);
+        String resetInstruction = "Press 'R' to reset game";
+        FontMetrics resetMetrics = getFontMetrics(g.getFont());
+        g.drawString(
+                resetInstruction,
+                (GAME_WIDTH - resetMetrics.stringWidth(resetInstruction)) / 2,
+                GAME_HEIGHT / 2 + 50
+        );
+    }
+
+    public void resetGame() {
+        score.resetScore();
+        newPaddles();
+        newBall();
+        gameEnded = false;
+
+        if (gameThread != null && !gameThread.isAlive()) {
+            gameThread = new Thread(this);
+            gameThread.start();
+        }
+    }
+
     public void run() {
         // Game loop
         long lastTime = System.nanoTime();
         double amountOfTicks = 60.0;
         double ns = 1000000000 / amountOfTicks;
         double delta = 0;
-        while (true) {
+        while (!gameEnded) {
             long now = System.nanoTime();
             delta += (now - lastTime) / ns;
             lastTime = now;
+
+            if (score.getPlayer1() == ENDING_SCORE || score.getPlayer2() == ENDING_SCORE) {
+                gameEnded = true;
+                break;
+            }
+
             if (delta >= 1) {
                 move();
                 checkCollision();
@@ -152,6 +205,8 @@ public class GamePanel extends JPanel implements Runnable, KeyListener {
                 delta--;
             }
         }
+
+        repaint();
     }
 
     @Override
@@ -161,6 +216,10 @@ public class GamePanel extends JPanel implements Runnable, KeyListener {
     public void keyPressed(KeyEvent e) {
         paddle1.keyPressed(e);
         paddle2.keyPressed(e);
+
+        if (gameEnded && e.getKeyCode() == KeyEvent.VK_R) {
+            resetGame();
+        }
     }
 
     @Override

@@ -29,6 +29,11 @@ public class Score extends Rectangle {
         }
     }
 
+    public void resetScore() {
+        player1 = 0;
+        player2 = 0;
+    }
+
     public void draw(Graphics g) {
         g.setColor(Color.WHITE);
         g.setFont(new Font("Comic Sans MS", Font.PLAIN, 60));
@@ -36,11 +41,11 @@ public class Score extends Rectangle {
         g.drawLine(GAME_WIDTH / 2, 0, GAME_WIDTH / 2, GAME_HEIGHT);
 
         g.drawString(
-                String.valueOf(player1 / 10) + String.valueOf(player1 % 10),
+                player1 / 10 + String.valueOf(player1 % 10),
                 (GAME_WIDTH / 2) - 85, 50
         );
         g.drawString(
-                String.valueOf(player2 / 10) + String.valueOf(player2 % 10),
+                player2 / 10 + String.valueOf(player2 % 10),
                 (GAME_WIDTH / 2) + 20, 50
         );
     }
