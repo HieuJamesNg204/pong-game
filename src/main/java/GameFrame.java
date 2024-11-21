@@ -1,5 +1,6 @@
 import javax.swing.*;
 import java.awt.*;
+import java.util.Objects;
 
 public class GameFrame extends JFrame {
     GamePanel panel;
@@ -14,5 +15,9 @@ public class GameFrame extends JFrame {
         this.pack();
         this.setVisible(true);
         this.setLocationRelativeTo(null);
+
+        Image icon = new ImageIcon(Objects.requireNonNull(getClass().getResource("/pong-icon.png")))
+                .getImage();
+        this.setIconImage(icon);
     }
 }
